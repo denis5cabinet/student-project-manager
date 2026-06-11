@@ -5,6 +5,7 @@
 from flask import Flask, jsonify
 from flask_migrate import Migrate
 from models import db
+from api import comments_bp
 
 app = Flask(__name__)
 
@@ -16,6 +17,9 @@ app.config["JSON_AS_ASCII"] = False
 # Инициализация расширений
 db.init_app(app)
 migrate = Migrate(app, db)
+
+# Регистрация Blueprint модуля комментариев
+app.register_blueprint(comments_bp)
 
 
 # Корневой маршрут
