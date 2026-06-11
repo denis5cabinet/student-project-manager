@@ -3,31 +3,22 @@
 Автор: Гурьянов Денис (модуль комментариев)
 """
 from flask import Flask, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from models import db
 
-# Инициализация приложения
 app = Flask(__name__)
 
-# Конфигурация базы данных (SQLite для разработки)
+# Конфигурация
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["JSON_AS_ASCII"] = False  # для корректного отображения русских символов
+app.config["JSON_AS_ASCII"] = False
 
 # Инициализация расширений
-db = SQLAlchemy(app)
+db.init_app(app)
 migrate = Migrate(app, db)
 
 
-# Пример простой модели (временная, позже заменим на свой модуль)
-class User(db.Model):
-    __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), unique=True, nullable=False)
-    name = db.Column(db.String(100), nullable=False)
-
-
-# Корневой маршрут для проверки работоспособности
+# Корневой маршрут
 @app.route("/")
 def index():
     return jsonify(
@@ -39,7 +30,6 @@ def index():
     )
 
 
-# Пример защищённого маршрута (заглушка для будущей аутентификации)
 @app.route("/api/health")
 def health():
     return jsonify({"status": "healthy"})
