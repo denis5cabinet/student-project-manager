@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module services</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title">services</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:c%3A%5Cusers%5C%D1%81%D1%82%D1%83%D0%B4%D0%B5%D0%BD%D1%82%5Cdesktop%5C%D0%B8%D1%81-3%20%D0%B3%D1%83%D1%80%D1%8C%D1%8F%D0%BD%D0%BE%D0%B2%20%D0%B4%D0%B5%D0%BD%D0%B8%D1%81%5C%D1%83%D1%87%D0%B5%D0%B1%D0%BD%D0%B0%D1%8F%20%D0%BF%D1%80%D0%B0%D0%BA%D1%82%D0%B8%D0%BA%D0%B0%5Cstudent-project-manager%5Cservices.py">c:\users\студент\desktop\ис-3 гурьянов денис\учебная практика\student-project-manager\services.py</a></td></tr></table>
+    <p><span class="code">Сервисный&nbsp;слой&nbsp;модуля&nbsp;комментариев.<br>
+&nbsp;<br>
+Реализует&nbsp;бизнес-правила:<br>
+-&nbsp;Запрет&nbsp;комментирования&nbsp;закрытой&nbsp;задачи.<br>
+-&nbsp;Отправка&nbsp;уведомления&nbsp;автору&nbsp;задачи.<br>
+-&nbsp;Ограничение&nbsp;времени&nbsp;редактирования&nbsp;(10&nbsp;минут).</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="logging.html">logging</a><br>
+</td><td class="multicolumn"></td><td class="multicolumn"></td><td class="multicolumn"></td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-create_comment_with_notification"><strong>create_comment_with_notification</strong></a>(content: str, author_id: int, task_id: int, parent_comment_id: Optional[int] = None) -&gt; models.Comment</dt><dd><span class="code">Создаёт&nbsp;комментарий&nbsp;с&nbsp;проверкой&nbsp;статуса&nbsp;задачи&nbsp;и&nbsp;отправкой&nbsp;уведомления.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;content:&nbsp;Текст&nbsp;комментария.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;author_id:&nbsp;ID&nbsp;автора.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;task_id:&nbsp;ID&nbsp;задачи.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;parent_comment_id:&nbsp;ID&nbsp;родительского&nbsp;комментария&nbsp;(опционально).<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Comment:&nbsp;Созданный&nbsp;комментарий.<br>
+&nbsp;<br>
+Raises:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PermissionError:&nbsp;Если&nbsp;задача&nbsp;закрыта.</span></dd></dl>
+ <dl><dt><a name="-delete_comment_with_checks"><strong>delete_comment_with_checks</strong></a>(comment_id: int, user_id: int, is_admin: bool = False, hard: bool = False) -&gt; bool</dt><dd><span class="code">Удаляет&nbsp;комментарий&nbsp;с&nbsp;проверкой&nbsp;прав.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;comment_id:&nbsp;ID&nbsp;комментария.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;user_id:&nbsp;ID&nbsp;пользователя.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;is_admin:&nbsp;Флаг&nbsp;администратора.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;hard:&nbsp;Жёсткое&nbsp;удаление.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;bool:&nbsp;True&nbsp;при&nbsp;успехе.</span></dd></dl>
+ <dl><dt><a name="-get_task_comments_safe"><strong>get_task_comments_safe</strong></a>(task_id: int, page: int = 1, per_page: int = 20, user_id: Optional[int] = None) -&gt; Tuple[List[models.Comment], int]</dt><dd><span class="code">Возвращает&nbsp;комментарии&nbsp;задачи&nbsp;(обёртка&nbsp;над&nbsp;CRUD).<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;task_id:&nbsp;ID&nbsp;задачи.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;page:&nbsp;Номер&nbsp;страницы.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;per_page:&nbsp;Количество&nbsp;на&nbsp;странице.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;user_id:&nbsp;Не&nbsp;используется,&nbsp;оставлен&nbsp;для&nbsp;совместимости.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Tuple[List[Comment],&nbsp;int]:&nbsp;(список&nbsp;комментариев,&nbsp;общее&nbsp;количество).</span></dd></dl>
+ <dl><dt><a name="-update_comment_with_time_limit"><strong>update_comment_with_time_limit</strong></a>(comment_id: int, new_content: str, user_id: int, is_admin: bool = False) -&gt; models.Comment</dt><dd><span class="code">Обновляет&nbsp;комментарий&nbsp;с&nbsp;учётом&nbsp;временного&nbsp;ограничения&nbsp;(10&nbsp;минут).<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;comment_id:&nbsp;ID&nbsp;комментария.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;new_content:&nbsp;Новый&nbsp;текст.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;user_id:&nbsp;ID&nbsp;пользователя.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;is_admin:&nbsp;Флаг&nbsp;администратора.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Comment:&nbsp;Обновлённый&nbsp;комментарий.<br>
+&nbsp;<br>
+Raises:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PermissionError:&nbsp;Если&nbsp;прошло&nbsp;больше&nbsp;10&nbsp;минут&nbsp;или&nbsp;недостаточно&nbsp;прав.</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>EDIT_TIME_LIMIT_MINUTES</strong> = 10<br>
+<strong>List</strong> = typing.List<br>
+<strong>Optional</strong> = typing.Optional<br>
+<strong>Tuple</strong> = typing.Tuple<br>
+<strong>logger</strong> = &lt;Logger services (WARNING)&gt;</td></tr></table>
+</body></html>

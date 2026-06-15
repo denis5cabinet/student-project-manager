@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module api</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title">api</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:c%3A%5Cusers%5C%D1%81%D1%82%D1%83%D0%B4%D0%B5%D0%BD%D1%82%5Cdesktop%5C%D0%B8%D1%81-3%20%D0%B3%D1%83%D1%80%D1%8C%D1%8F%D0%BD%D0%BE%D0%B2%20%D0%B4%D0%B5%D0%BD%D0%B8%D1%81%5C%D1%83%D1%87%D0%B5%D0%B1%D0%BD%D0%B0%D1%8F%20%D0%BF%D1%80%D0%B0%D0%BA%D1%82%D0%B8%D0%BA%D0%B0%5Cstudent-project-manager%5Capi.py">c:\users\студент\desktop\ис-3 гурьянов денис\учебная практика\student-project-manager\api.py</a></td></tr></table>
+    <p><span class="code">REST&nbsp;API&nbsp;для&nbsp;модуля&nbsp;комментариев.<br>
+&nbsp;<br>
+Предоставляет&nbsp;эндпоинты&nbsp;для&nbsp;управления&nbsp;комментариями&nbsp;через&nbsp;HTTP.<br>
+Все&nbsp;запросы&nbsp;требуют&nbsp;JWT-аутентификации&nbsp;(в&nbsp;текущей&nbsp;версии&nbsp;–&nbsp;заглушка).</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="logging.html">logging</a><br>
+</td><td class="multicolumn"></td><td class="multicolumn"></td><td class="multicolumn"></td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-add_comment"><strong>add_comment</strong></a>()</dt><dd><span class="code">Добавляет&nbsp;новый&nbsp;комментарий.<br>
+&nbsp;<br>
+**Request&nbsp;body&nbsp;(JSON):**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;content&nbsp;(str):&nbsp;Текст&nbsp;комментария&nbsp;(обязательно).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;task_id&nbsp;(int):&nbsp;ID&nbsp;задачи&nbsp;(обязательно).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;parent_comment_id&nbsp;(int,&nbsp;optional):&nbsp;ID&nbsp;родительского&nbsp;комментария.<br>
+&nbsp;<br>
+**Responses:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;201:&nbsp;Комментарий&nbsp;создан,&nbsp;возвращает&nbsp;его&nbsp;JSON.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;400:&nbsp;Неверные&nbsp;данные.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;403:&nbsp;Попытка&nbsp;комментировать&nbsp;закрытую&nbsp;задачу.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;500:&nbsp;Внутренняя&nbsp;ошибка.</span></dd></dl>
+ <dl><dt><a name="-delete_comment"><strong>delete_comment</strong></a>(comment_id)</dt><dd><span class="code">Удаляет&nbsp;комментарий&nbsp;(мягкое&nbsp;удаление).<br>
+&nbsp;<br>
+**Responses:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;200:&nbsp;{'message':&nbsp;'Deleted'}.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;403:&nbsp;Нет&nbsp;прав.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;404:&nbsp;Комментарий&nbsp;не&nbsp;найден.</span></dd></dl>
+ <dl><dt><a name="-get_comment_by_id"><strong>get_comment_by_id</strong></a>(comment_id)</dt><dd><span class="code">Возвращает&nbsp;один&nbsp;комментарий&nbsp;по&nbsp;ID.<br>
+&nbsp;<br>
+**Responses:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;200:&nbsp;JSON&nbsp;комментария.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;404:&nbsp;Комментарий&nbsp;не&nbsp;найден.</span></dd></dl>
+ <dl><dt><a name="-get_current_user"><strong>get_current_user</strong></a>()</dt><dd><span class="code">Временно:&nbsp;возвращает&nbsp;ID&nbsp;текущего&nbsp;пользователя&nbsp;(заглушка).<br>
+&nbsp;<br>
+В&nbsp;реальном&nbsp;проекте&nbsp;здесь&nbsp;будет&nbsp;извлечение&nbsp;user_id&nbsp;из&nbsp;JWT-токена.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;int:&nbsp;ID&nbsp;пользователя&nbsp;(1&nbsp;–&nbsp;Иван&nbsp;Петров).</span></dd></dl>
+ <dl><dt><a name="-is_admin"><strong>is_admin</strong></a>()</dt><dd><span class="code">Заглушка&nbsp;для&nbsp;проверки&nbsp;прав&nbsp;администратора.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;bool:&nbsp;False&nbsp;(временно).</span></dd></dl>
+ <dl><dt><a name="-list_comments"><strong>list_comments</strong></a>()</dt><dd><span class="code">Возвращает&nbsp;список&nbsp;комментариев&nbsp;задачи&nbsp;с&nbsp;пагинацией.<br>
+&nbsp;<br>
+**Query&nbsp;parameters:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;task_id&nbsp;(int):&nbsp;ID&nbsp;задачи&nbsp;(обязательно).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;page&nbsp;(int):&nbsp;Номер&nbsp;страницы&nbsp;(по&nbsp;умолчанию&nbsp;1).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;limit&nbsp;(int):&nbsp;Количество&nbsp;на&nbsp;странице&nbsp;(по&nbsp;умолчанию&nbsp;20,&nbsp;макс&nbsp;100).<br>
+&nbsp;<br>
+**Responses:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;200:&nbsp;JSON&nbsp;с&nbsp;полями&nbsp;`data`&nbsp;и&nbsp;`pagination`.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;400:&nbsp;Отсутствует&nbsp;task_id.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;404:&nbsp;Задача&nbsp;не&nbsp;найдена.</span></dd></dl>
+ <dl><dt><a name="-update_comment"><strong>update_comment</strong></a>(comment_id)</dt><dd><span class="code">Обновляет&nbsp;текст&nbsp;комментария.<br>
+&nbsp;<br>
+**Request&nbsp;body&nbsp;(JSON):**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;content&nbsp;(str):&nbsp;Новый&nbsp;текст&nbsp;(обязательно).<br>
+&nbsp;<br>
+**Responses:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;200:&nbsp;Обновлённый&nbsp;комментарий.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;400:&nbsp;Отсутствует&nbsp;content.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;403:&nbsp;Нет&nbsp;прав&nbsp;или&nbsp;истекло&nbsp;время&nbsp;редактирования.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;404:&nbsp;Комментарий&nbsp;не&nbsp;найден.</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>comments_bp</strong> = &lt;Blueprint 'comments'&gt;<br>
+<strong>logger</strong> = &lt;Logger api (WARNING)&gt;<br>
+<strong>request</strong> = &lt;LocalProxy unbound&gt;</td></tr></table>
+</body></html>

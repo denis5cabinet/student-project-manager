@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module crud</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title">crud</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:c%3A%5Cusers%5C%D1%81%D1%82%D1%83%D0%B4%D0%B5%D0%BD%D1%82%5Cdesktop%5C%D0%B8%D1%81-3%20%D0%B3%D1%83%D1%80%D1%8C%D1%8F%D0%BD%D0%BE%D0%B2%20%D0%B4%D0%B5%D0%BD%D0%B8%D1%81%5C%D1%83%D1%87%D0%B5%D0%B1%D0%BD%D0%B0%D1%8F%20%D0%BF%D1%80%D0%B0%D0%BA%D1%82%D0%B8%D0%BA%D0%B0%5Cstudent-project-manager%5Ccrud.py">c:\users\студент\desktop\ис-3 гурьянов денис\учебная практика\student-project-manager\crud.py</a></td></tr></table>
+    <p><span class="code">CRUD&nbsp;операции&nbsp;для&nbsp;модели&nbsp;Comment.<br>
+&nbsp;<br>
+Содержит&nbsp;низкоуровневые&nbsp;функции&nbsp;для&nbsp;работы&nbsp;с&nbsp;БД:<br>
+-&nbsp;создание,&nbsp;чтение,&nbsp;обновление,&nbsp;удаление&nbsp;комментариев<br>
+-&nbsp;валидация&nbsp;входных&nbsp;данных<br>
+-&nbsp;проверка&nbsp;существования&nbsp;связанных&nbsp;записей</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="logging.html">logging</a><br>
+</td><td class="multicolumn"></td><td class="multicolumn"></td><td class="multicolumn"></td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-check_parent_comment_exists"><strong>check_parent_comment_exists</strong></a>(parent_id: int) -&gt; bool</dt><dd><span class="code">Проверяет&nbsp;существование&nbsp;родительского&nbsp;комментария.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;parent_id:&nbsp;ID&nbsp;комментария.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;bool:&nbsp;True&nbsp;если&nbsp;комментарий&nbsp;существует,&nbsp;иначе&nbsp;False.</span></dd></dl>
+ <dl><dt><a name="-check_task_exists"><strong>check_task_exists</strong></a>(task_id: int) -&gt; bool</dt><dd><span class="code">Проверяет&nbsp;существование&nbsp;задачи&nbsp;в&nbsp;БД.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;task_id:&nbsp;ID&nbsp;задачи.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;bool:&nbsp;True&nbsp;если&nbsp;задача&nbsp;существует,&nbsp;иначе&nbsp;False.</span></dd></dl>
+ <dl><dt><a name="-create_comment"><strong>create_comment</strong></a>(content: str, author_id: int, task_id: int, parent_comment_id: Optional[int] = None) -&gt; models.Comment</dt><dd><span class="code">Создаёт&nbsp;новый&nbsp;комментарий&nbsp;в&nbsp;БД.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;content:&nbsp;Текст&nbsp;комментария.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;author_id:&nbsp;ID&nbsp;автора.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;task_id:&nbsp;ID&nbsp;задачи.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;parent_comment_id:&nbsp;ID&nbsp;родительского&nbsp;комментария&nbsp;(опционально,&nbsp;для&nbsp;ответов).<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Comment:&nbsp;Созданный&nbsp;объект&nbsp;комментария.<br>
+&nbsp;<br>
+Raises:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ValueError:&nbsp;Если&nbsp;задача&nbsp;или&nbsp;родительский&nbsp;комментарий&nbsp;не&nbsp;существуют,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;либо&nbsp;контент&nbsp;не&nbsp;прошёл&nbsp;валидацию.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;RuntimeError:&nbsp;При&nbsp;ошибке&nbsp;базы&nbsp;данных.</span></dd></dl>
+ <dl><dt><a name="-delete_comment"><strong>delete_comment</strong></a>(comment_id: int, user_id: int, is_admin: bool = False, hard: bool = False) -&gt; bool</dt><dd><span class="code">Удаляет&nbsp;комментарий&nbsp;(мягкое&nbsp;или&nbsp;жёсткое&nbsp;удаление).<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;comment_id:&nbsp;ID&nbsp;комментария.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;user_id:&nbsp;ID&nbsp;текущего&nbsp;пользователя.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;is_admin:&nbsp;Флаг&nbsp;администратора.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;hard:&nbsp;True&nbsp;–&nbsp;полное&nbsp;удаление&nbsp;из&nbsp;БД,&nbsp;False&nbsp;–&nbsp;мягкое&nbsp;(is_deleted=True).<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;bool:&nbsp;True&nbsp;в&nbsp;случае&nbsp;успеха.<br>
+&nbsp;<br>
+Raises:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PermissionError:&nbsp;Если&nbsp;пользователь&nbsp;не&nbsp;автор&nbsp;и&nbsp;не&nbsp;администратор.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ValueError:&nbsp;Если&nbsp;комментарий&nbsp;не&nbsp;найден.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;RuntimeError:&nbsp;При&nbsp;ошибке&nbsp;базы&nbsp;данных.</span></dd></dl>
+ <dl><dt><a name="-get_comment"><strong>get_comment</strong></a>(comment_id: int) -&gt; models.Comment</dt><dd><span class="code">Возвращает&nbsp;комментарий&nbsp;по&nbsp;ID.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;comment_id:&nbsp;ID&nbsp;комментария.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Comment:&nbsp;Объект&nbsp;комментария.<br>
+&nbsp;<br>
+Raises:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ValueError:&nbsp;Если&nbsp;комментарий&nbsp;не&nbsp;найден.</span></dd></dl>
+ <dl><dt><a name="-get_comments_by_task"><strong>get_comments_by_task</strong></a>(task_id: int, page: int = 1, per_page: int = 20, include_replies: bool = True) -&gt; Tuple[List[models.Comment], int]</dt><dd><span class="code">Возвращает&nbsp;список&nbsp;комментариев&nbsp;задачи&nbsp;с&nbsp;пагинацией.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;task_id:&nbsp;ID&nbsp;задачи.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;page:&nbsp;Номер&nbsp;страницы&nbsp;(начиная&nbsp;с&nbsp;1).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;per_page:&nbsp;Количество&nbsp;комментариев&nbsp;на&nbsp;странице&nbsp;(макс.&nbsp;100).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;include_replies:&nbsp;Если&nbsp;True,&nbsp;подгружает&nbsp;ответы&nbsp;к&nbsp;каждому&nbsp;комментарию.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Tuple[List[Comment],&nbsp;int]:&nbsp;(список&nbsp;корневых&nbsp;комментариев,&nbsp;общее&nbsp;количество).<br>
+&nbsp;<br>
+Raises:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ValueError:&nbsp;Если&nbsp;задача&nbsp;не&nbsp;существует.</span></dd></dl>
+ <dl><dt><a name="-update_comment"><strong>update_comment</strong></a>(comment_id: int, new_content: str, user_id: int, is_admin: bool = False) -&gt; models.Comment</dt><dd><span class="code">Обновляет&nbsp;текст&nbsp;комментария.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;comment_id:&nbsp;ID&nbsp;комментария.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;new_content:&nbsp;Новый&nbsp;текст.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;user_id:&nbsp;ID&nbsp;текущего&nbsp;пользователя.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;is_admin:&nbsp;Флаг&nbsp;администратора&nbsp;(разрешает&nbsp;редактирование&nbsp;чужих).<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Comment:&nbsp;Обновлённый&nbsp;комментарий.<br>
+&nbsp;<br>
+Raises:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PermissionError:&nbsp;Если&nbsp;пользователь&nbsp;не&nbsp;автор&nbsp;и&nbsp;не&nbsp;администратор.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ValueError:&nbsp;Если&nbsp;комментарий&nbsp;не&nbsp;найден&nbsp;или&nbsp;новый&nbsp;текст&nbsp;невалиден.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;RuntimeError:&nbsp;При&nbsp;ошибке&nbsp;базы&nbsp;данных.</span></dd></dl>
+ <dl><dt><a name="-validate_comment_content"><strong>validate_comment_content</strong></a>(content: str) -&gt; str</dt><dd><span class="code">Проверяет&nbsp;корректность&nbsp;текста&nbsp;комментария.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;content:&nbsp;Исходный&nbsp;текст.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;str:&nbsp;Очищенный&nbsp;текст&nbsp;(без&nbsp;лишних&nbsp;пробелов&nbsp;по&nbsp;краям).<br>
+&nbsp;<br>
+Raises:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ValueError:&nbsp;Если&nbsp;текст&nbsp;пустой&nbsp;или&nbsp;превышает&nbsp;максимальную&nbsp;длину.</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>DEFAULT_PAGE_LIMIT</strong> = 20<br>
+<strong>List</strong> = typing.List<br>
+<strong>MAX_COMMENT_LENGTH</strong> = 2000<br>
+<strong>MAX_PAGE_LIMIT</strong> = 100<br>
+<strong>Optional</strong> = typing.Optional<br>
+<strong>Tuple</strong> = typing.Tuple<br>
+<strong>db</strong> = &lt;SQLAlchemy&gt;<br>
+<strong>logger</strong> = &lt;Logger crud (WARNING)&gt;</td></tr></table>
+</body></html>

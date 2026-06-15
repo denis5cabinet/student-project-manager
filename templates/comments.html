@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Комментарии к задаче</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .comment { border-bottom: 1px solid #ddd; padding: 10px 0; }
+        .comment-author { font-weight: bold; }
+        .comment-date { font-size: 0.8em; color: gray; }
+        .comment-content { margin: 5px 0; }
+        button { margin: 2px; cursor: pointer; }
+        textarea { width: 100%; padding: 8px; margin: 10px 0; }
+        .error { color: red; }
+        .reply-info { background: #eef; padding: 5px; margin-bottom: 10px; }
+        .pagination { margin-top: 20px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Комментарии к задаче</h2>
+    <div>
+        ID задачи: <input type="number" id="taskId" value="1">
+        <button id="loadBtn">Загрузить</button>
+    </div>
+    <div id="errorMsg" class="error"></div>
+    <div id="replyArea" class="reply-info" style="display:none;">
+        Ответ на комментарий <span id="replyParentId"></span>
+        <button id="cancelReply">Отмена</button>
+    </div>
+    <textarea id="newComment" placeholder="Новый комментарий..." rows="2"></textarea>
+    <button id="addBtn">Добавить комментарий</button>
+    <hr>
+    <div id="commentsList"></div>
+    <div id="pagination" class="pagination"></div>
+</div>
+
+<script>
+    const API_BASE = '/api/comments';
+    let currentTaskId = 1;
+    let currentPage = 1;
+    let totalPages = 1;
+    let replyToId = null;
+
+    function showError(msg) {
+        const errDiv = document.getElementById('errorMsg');
+        errDiv.textContent = msg;
+        setTimeout(() => errDiv.textContent = '', 4000);
+    }
+
+    function formatDate(iso) {
+        if (!iso) return '';
+        return new Date(iso).toLocaleString();
+    }
+
+    async function apiRequest(url, method, body = null) {
+        const opts = { method, headers: { 'Content-Type': 'application/json' } };
+        if (body) opts.body = JSON.stringify(body);
+        const resp = await fetch(url, opts);
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || 'Ошибка запроса');
+        return data;
+    }
+
+    async function loadComments() {
+        const url = `${API_BASE}/?task_id=${currentTaskId}&page=${currentPage}&limit=10`;
+        try {
+            const data = await apiRequest(url, 'GET');
+            renderComments(data.data);
+            renderPagination(data.pagination);
+        } catch (err) {
+            showError(err.message);
+            document.getElementById('commentsList').innerHTML = '<p>Ошибка загрузки</p>';
+        }
+    }
+
+    function renderComments(comments) {
+        const container = document.getElementById('commentsList');
+        if (!comments.length) {
+            container.innerHTML = '<p>Нет комментариев.</p>';
+            return;
+        }
+        let html = '';
+        comments.forEach(c => {
+            html += `
+                <div class="comment" data-id="${c.id}">
+                    <div class="comment-author">Пользователь ${c.author_id}</div>
+                    <div class="comment-date">${formatDate(c.created_at)}</div>
+                    <div class="comment-content">${escapeHtml(c.content)}</div>
+                    <div>
+                        <button class="editBtn" data-id="${c.id}">✏️</button>
+                        <button class="deleteBtn" data-id="${c.id}">🗑️</button>
+                        <button class="replyBtn" data-id="${c.id}">💬 Ответить</button>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+
+        document.querySelectorAll('.editBtn').forEach(btn => {
+            btn.onclick = () => editComment(parseInt(btn.dataset.id));
+        });
+        document.querySelectorAll('.deleteBtn').forEach(btn => {
+            btn.onclick = () => deleteComment(parseInt(btn.dataset.id));
+        });
+        document.querySelectorAll('.replyBtn').forEach(btn => {
+            btn.onclick = () => startReply(parseInt(btn.dataset.id));
+        });
+    }
+
+    function renderPagination(pagination) {
+        const container = document.getElementById('pagination');
+        if (!pagination || pagination.pages <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+        let html = '';
+        for (let i = 1; i <= pagination.pages; i++) {
+            const active = (i === pagination.page) ? 'style="font-weight:bold"' : '';
+            html += `<button class="pageBtn" data-page="${i}" ${active}>${i}</button> `;
+        }
+        container.innerHTML = html;
+        document.querySelectorAll('.pageBtn').forEach(btn => {
+            btn.onclick = () => {
+                currentPage = parseInt(btn.dataset.page);
+                loadComments();
+            };
+        });
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    async function addComment() {
+        const content = document.getElementById('newComment').value.trim();
+        if (!content) return showError('Введите текст');
+        if (content.length > 2000) return showError('Слишком длинный комментарий');
+        const body = { content, task_id: currentTaskId };
+        if (replyToId) body.parent_comment_id = replyToId;
+        try {
+            await apiRequest(API_BASE + '/', 'POST', body);
+            document.getElementById('newComment').value = '';
+            cancelReply();
+            currentPage = 1;
+            await loadComments();
+        } catch (err) {
+            showError(err.message);
+        }
+    }
+
+    async function editComment(id) {
+        const newText = prompt('Новый текст комментария:');
+        if (!newText) return;
+        try {
+            await apiRequest(`${API_BASE}/${id}`, 'PUT', { content: newText });
+            await loadComments();
+        } catch (err) {
+            showError(err.message);
+        }
+    }
+
+    async function deleteComment(id) {
+        if (!confirm('Удалить комментарий?')) return;
+        try {
+            await apiRequest(`${API_BASE}/${id}`, 'DELETE');
+            await loadComments();
+        } catch (err) {
+            showError(err.message);
+        }
+    }
+
+    function startReply(id) {
+        replyToId = id;
+        document.getElementById('replyArea').style.display = 'block';
+        document.getElementById('replyParentId').innerText = id;
+    }
+
+    function cancelReply() {
+        replyToId = null;
+        document.getElementById('replyArea').style.display = 'none';
+    }
+
+    document.getElementById('loadBtn').onclick = () => {
+        const newId = parseInt(document.getElementById('taskId').value);
+        if (isNaN(newId)) return showError('Некорректный ID');
+        currentTaskId = newId;
+        currentPage = 1;
+        loadComments();
+    };
+    document.getElementById('addBtn').onclick = addComment;
+    document.getElementById('cancelReply').onclick = cancelReply;
+
+    // Загрузить комментарии для задачи 1 при старте
+    loadComments();
+</script>
+</body>
+</html>
