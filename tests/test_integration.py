@@ -1,15 +1,14 @@
 """
 Интеграционные тесты для модуля комментариев.
-Проверяют взаимодействие с аутентификацией, задачами и пользователями.
 """
 import pytest
 from app import app
-from models import db, User, Task  # Comment не используется, убираем
+from extensions import db
+from models import User, Task, Comment
 
 
 @pytest.fixture
 def client():
-    """Тестовый клиент Flask с временной БД."""
     app.config["TESTING"] = True
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
     with app.test_client() as client:
@@ -43,7 +42,7 @@ def test_create_comment_integration(client):
 
 def test_comment_closed_task(client):
     with app.app_context():
-        task = Task.query.get(client.test_task_id)
+        task = db.session.get(Task, client.test_task_id)
         task.status = "closed"
         db.session.commit()
     response = client.post(

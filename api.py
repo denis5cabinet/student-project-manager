@@ -15,11 +15,15 @@ from crud import get_comment
 logger = logging.getLogger(__name__)
 comments_bp = Blueprint('comments', __name__, url_prefix='/api/comments')
 
+
+# TODO: заменить на реальную аутентификацию (JWT) из модуля Ахметова
 def get_current_user():
     return 1
 
+
 def is_admin():
     return False
+
 
 @comments_bp.route('/', methods=['POST'])
 def add_comment():
@@ -47,6 +51,7 @@ def add_comment():
         logger.exception("Unexpected error in add_comment")
         return jsonify({'error': 'Internal server error'}), 500
 
+
 @comments_bp.route('/', methods=['GET'])
 @cache.cached(timeout=30, query_string=True)
 def list_comments():
@@ -72,6 +77,7 @@ def list_comments():
         logger.exception("Error in list_comments")
         return jsonify({'error': 'Internal server error'}), 500
 
+
 @comments_bp.route('/<int:comment_id>', methods=['GET'])
 @cache.cached(timeout=30)
 def get_comment_by_id(comment_id):
@@ -83,6 +89,7 @@ def get_comment_by_id(comment_id):
     except Exception:
         logger.exception("Error in get_comment_by_id")
         return jsonify({'error': 'Internal server error'}), 500
+
 
 @comments_bp.route('/<int:comment_id>', methods=['PUT'])
 def update_comment(comment_id):
@@ -104,6 +111,7 @@ def update_comment(comment_id):
     except Exception:
         logger.exception("Error in update_comment")
         return jsonify({'error': 'Internal server error'}), 500
+
 
 @comments_bp.route('/<int:comment_id>', methods=['DELETE'])
 def delete_comment(comment_id):
