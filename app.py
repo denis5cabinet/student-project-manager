@@ -1,32 +1,29 @@
+import os
 from flask import Flask, jsonify, render_template
-from flask_migrate import Migrate
-from models import db
+from extensions import db, migrate, cache
 from api import comments_bp
-from extensions import cache
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["JSON_AS_ASCII"] = False
 
+# Конфигурация базы данных из переменной окружения
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///project.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JSON_AS_ASCII'] = False
+
+# Инициализация расширений
 db.init_app(app)
-migrate = Migrate(app, db)
-
-# Инициализация кэша
-cache.init_app(app, config={"CACHE_TYPE": "SimpleCache"})
+migrate.init_app(app, db)
+cache.init_app(app, config={'CACHE_TYPE': 'SimpleCache'})
 
 app.register_blueprint(comments_bp)
 
-
-@app.route("/")
+@app.route('/')
 def index():
-    return jsonify({"status": "ok", "message": "Система управления учебными проектами"})
+    return jsonify({'status': 'ok', 'message': 'Система управления учебными проектами'})
 
-
-@app.route("/comments")
+@app.route('/comments')
 def comments_page():
-    return render_template("comments.html")
+    return render_template('comments.html')
 
-
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=False)
