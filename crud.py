@@ -1,14 +1,15 @@
-"""CRUD операции для модели Comment.
-
+"""
+CRUD операции для модели Comment.
 Содержит низкоуровневые функции для работы с БД:
 - создание, чтение, обновление, удаление комментариев
 - валидация входных данных
 - проверка существования связанных записей
+- оптимизация запросов с использованием selectinload
 """
-
 import logging
 from datetime import datetime, timezone
 from typing import List, Optional, Tuple
+from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import SQLAlchemyError
 from models import db, Comment, Task
 from config import MAX_COMMENT_LENGTH, MAX_PAGE_LIMIT, DEFAULT_PAGE_LIMIT
@@ -31,9 +32,7 @@ def validate_comment_content(content: str) -> str:
     if not content or not content.strip():
         raise ValueError("Комментарий не может быть пустым")
     if len(content) > MAX_COMMENT_LENGTH:
-        raise ValueError(
-            f"Комментарий не может превышать {MAX_COMMENT_LENGTH} символов"
-        )
+        raise ValueError(f"Комментарий не может превышать {MAX_COMMENT_LENGTH} символов")
     return content.strip()
 
 
@@ -61,9 +60,8 @@ def check_parent_comment_exists(parent_id: int) -> bool:
     return db.session.query(Comment.query.filter_by(id=parent_id).exists()).scalar()
 
 
-def create_comment(
-    content: str, author_id: int, task_id: int, parent_comment_id: Optional[int] = None
-) -> Comment:
+def create_comment(content: str, author_id: int, task_id: int,
+                   parent_comment_id: Optional[int] = None) -> Comment:
     """Создаёт новый комментарий в БД.
 
     Args:
@@ -85,12 +83,8 @@ def create_comment(
 
     if not check_task_exists(task_id):
         raise ValueError(f"Задача с ID {task_id} не существует")
-    if parent_comment_id is not None and not check_parent_comment_exists(
-        parent_comment_id
-    ):
-        raise ValueError(
-            f"Родительский комментарий с ID {parent_comment_id} не существует"
-        )
+    if parent_comment_id is not None and not check_parent_comment_exists(parent_comment_id):
+        raise ValueError(f"Родительский комментарий с ID {parent_comment_id} не существует")
 
     comment = Comment(
         content=validated_content,
@@ -99,7 +93,7 @@ def create_comment(
         parent_comment_id=parent_comment_id,
         created_at=datetime.now(timezone.utc),
         updated_at=datetime.now(timezone.utc),
-        is_deleted=False,
+        is_deleted=False
     )
     try:
         db.session.add(comment)
@@ -130,13 +124,11 @@ def get_comment(comment_id: int) -> Comment:
     return comment
 
 
-def get_comments_by_task(
-    task_id: int,
-    page: int = 1,
-    per_page: int = DEFAULT_PAGE_LIMIT,
-    include_replies: bool = True,
-) -> Tuple[List[Comment], int]:
-    """Возвращает список комментариев задачи с пагинацией.
+def get_comments_by_task(task_id: int, page: int = 1, per_page: int = DEFAULT_PAGE_LIMIT,
+                         include_replies: bool = True) -> Tuple[List[Comment], int]:
+    """
+    Возвращает список комментариев задачи с пагинацией.
+    Оптимизирована с использованием selectinload для жадной загрузки ответов (replies).
 
     Args:
         task_id: ID задачи.
@@ -150,37 +142,30 @@ def get_comments_by_task(
     Raises:
         ValueError: Если задача не существует.
     """
-    logger.info(
-        f"Fetching comments for task_id={task_id}, page={page}, per_page={per_page}"
-    )
+    logger.info(f"Fetching comments for task_id={task_id}, page={page}, per_page={per_page}")
     if not check_task_exists(task_id):
         raise ValueError(f"Задача с ID {task_id} не существует")
 
+    # Базовый запрос: корневые комментарии (parent_comment_id IS NULL)
     query = Comment.query.filter_by(task_id=task_id, parent_comment_id=None)
+
+    # Если нужно подгрузить ответы, используем selectinload для жадной загрузки
+    if include_replies:
+        query = query.options(selectinload(Comment.replies))
+
     total = query.count()
     per_page = min(per_page, MAX_PAGE_LIMIT)
-    comments = (
-        query.order_by(Comment.created_at.desc())
-        .offset((page - 1) * per_page)
-        .limit(per_page)
-        .all()
-    )
 
-    if include_replies and comments:
-        comment_ids = [c.id for c in comments]
-        replies = Comment.query.filter(Comment.parent_comment_id.in_(comment_ids)).all()
-        replies_by_parent = {}
-        for reply in replies:
-            replies_by_parent.setdefault(reply.parent_comment_id, []).append(reply)
-        for comment in comments:
-            comment.replies_list = replies_by_parent.get(comment.id, [])
+    comments = query.order_by(Comment.created_at.desc()) \
+        .offset((page - 1) * per_page) \
+        .limit(per_page) \
+        .all()
 
     return comments, total
 
 
-def update_comment(
-    comment_id: int, new_content: str, user_id: int, is_admin: bool = False
-) -> Comment:
+def update_comment(comment_id: int, new_content: str, user_id: int,
+                   is_admin: bool = False) -> Comment:
     """Обновляет текст комментария.
 
     Args:
@@ -212,12 +197,13 @@ def update_comment(
     except SQLAlchemyError as e:
         db.session.rollback()
         logger.error(f"Failed to update comment {comment_id}: {str(e)}")
-        raise RuntimeError(f"Ошибка базы данных при обновлении комментария: {str(e)}")
+        raise RuntimeError(
+            f"Ошибка базы данных при обновлении комментария: {str(e)}"
+        )
 
 
-def delete_comment(
-    comment_id: int, user_id: int, is_admin: bool = False, hard: bool = False
-) -> bool:
+def delete_comment(comment_id: int, user_id: int, is_admin: bool = False,
+                   hard: bool = False) -> bool:
     """Удаляет комментарий (мягкое или жёсткое удаление).
 
     Args:
@@ -253,4 +239,6 @@ def delete_comment(
     except SQLAlchemyError as e:
         db.session.rollback()
         logger.error(f"Failed to delete comment {comment_id}: {str(e)}")
-        raise RuntimeError(f"Ошибка базы данных при удалении комментария: {str(e)}")
+        raise RuntimeError(
+            f"Ошибка базы данных при удалении комментария: {str(e)}"
+        )

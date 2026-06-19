@@ -54,22 +54,14 @@ def _is_task_closed(task_id: int) -> bool:
 
 
 def _can_edit_comment(comment: Comment, user_id: int, is_admin: bool = False) -> bool:
-    """Проверяет, может ли пользователь редактировать комментарий.
-
-    Args:
-        comment: Объект комментария.
-        user_id: ID пользователя.
-        is_admin: Флаг администратора.
-
-    Returns:
-        bool: True если разрешено (администратор или автор и не прошло 10 минут).
-    """
     if is_admin:
         return True
     if comment.author_id != user_id:
         return False
     time_limit = comment.created_at + timedelta(minutes=EDIT_TIME_LIMIT_MINUTES)
-    return datetime.now(timezone.utc) <= time_limit
+    # Приводим datetime.now(timezone.utc) к naive (без часового пояса)
+    now_naive = datetime.now(timezone.utc).replace(tzinfo=None)
+    return now_naive <= time_limit
 
 
 def _send_notification(user_id: int, comment: Comment) -> None:

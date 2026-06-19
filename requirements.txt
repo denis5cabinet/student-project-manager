@@ -7,6 +7,7 @@ auto-py-to-exe==2.50.1
 blinker==1.9.0
 bottle==0.13.4
 bottle-websocket==0.2.9
+cachelib==0.14.0
 certifi==2026.2.25
 cffi==2.0.0
 charset-normalizer==3.4.6
@@ -19,10 +20,12 @@ cycler==0.12.1
 darkdetect==0.8.0
 Django==6.0.3
 docutils==0.22.4
+docx==0.2.4
 Eel==0.18.2
 et_xmlfile==2.0.0
 filetype==1.2.0
 Flask==3.0.0
+Flask-Caching==2.4.0
 Flask-Login==0.6.3
 Flask-Migrate==4.1.0
 Flask-SQLAlchemy==3.1.1
